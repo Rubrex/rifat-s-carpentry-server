@@ -40,6 +40,19 @@ app.get("/", (req, res) => {
   res.send("Rifat's Carpentry REST API is running");
 });
 
+// Get Services
+app.get("/services", async (req, res) => {
+  try {
+    const service = parseInt(req.query.service);
+    const services = await serviceCollection.find({}).limit(service).toArray();
+    res.send(services);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// POST Endpoints
+
 // Listen on port
 app.listen(port, () =>
   console.log(colors.bgGreen.bold("Port is listening on port " + port))
