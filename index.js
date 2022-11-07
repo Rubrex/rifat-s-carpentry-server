@@ -51,6 +51,17 @@ app.get("/services", async (req, res) => {
   }
 });
 
+// Get service by id
+app.get("/services/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const service = await serviceCollection.findOne({ service_id: id });
+    res.send(service);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // POST Endpoints
 
 // Listen on port
