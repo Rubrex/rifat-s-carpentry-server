@@ -117,6 +117,24 @@ app.post("/services", async (req, res) => {
   }
 });
 
+// DELETE
+// Delete a review by _id
+app.delete("/reviews/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const deleteReview = await reviewsCollection.deleteOne(query);
+    console.log(id, deleteReview);
+
+    if (deleteReview.deletedCount === 1) {
+      console.log("Successfully deleted one document.");
+      res.send(deleteReview);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // Listen on port
 app.listen(port, () =>
   console.log(colors.bgGreen.bold("Port is listening on port " + port))
