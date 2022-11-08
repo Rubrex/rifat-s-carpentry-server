@@ -40,6 +40,18 @@ app.get("/", (req, res) => {
   res.send("Rifat's Carpentry REST API is running");
 });
 
+// Check length of total services
+app.get("/checkServices", async (req, res) => {
+  try {
+    const totalServices = await serviceCollection.find({}).toArray();
+    const length = totalServices.length;
+    console.log(length);
+    res.send({ services: length });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // Get Services
 app.get("/services", async (req, res) => {
   try {
@@ -54,8 +66,9 @@ app.get("/services", async (req, res) => {
 // Get service by id
 app.get("/services/:id", async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = +req.params.id;
     const service = await serviceCollection.findOne({ service_id: id });
+    console.log(typeof id, service);
     res.send(service);
   } catch (err) {
     console.log(err);
