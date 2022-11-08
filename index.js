@@ -62,7 +62,33 @@ app.get("/services/:id", async (req, res) => {
   }
 });
 
+// Get Reviews by service_id
+
+app.get("/reviews/:serviceId", async (req, res) => {
+  try {
+    const serviceId = req.params.serviceId;
+    const reviews = await reviewsCollection
+      .find({ service_id: serviceId })
+      .toArray();
+    res.send(reviews);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // POST Endpoints
+
+// Add review
+app.post("/reviews", async (req, res) => {
+  try {
+    const review = req.body;
+    console.log(review);
+    const result = await reviewsCollection.insertOne(review);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 // Listen on port
 app.listen(port, () =>
