@@ -135,6 +135,35 @@ app.delete("/reviews/:id", async (req, res) => {
   }
 });
 
+// PATCH : Update review by params & body
+/*
+  fetch(`http://localhost:5000/reviews/${id}`,{
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(object)
+  })
+*/
+app.patch("/reviews/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { ratings, review_desc } = req.body;
+
+    const query = { _id: ObjectId(id) };
+    const updateDoc = {
+      $set: {
+        reviewer_ratings: ratings,
+        reviewer_review: review_desc,
+      },
+    };
+
+    const updated = await reviewsCollection.updateOne(query, updateDoc);
+    console.log(updateDoc, id, updated);
+    res.send(updated);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // Listen on port
 app.listen(port, () =>
   console.log(colors.bgGreen.bold("Port is listening on port " + port))
