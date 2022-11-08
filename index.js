@@ -76,6 +76,20 @@ app.get("/reviews/:serviceId", async (req, res) => {
   }
 });
 
+// Get My Reviews by query email + JWT
+
+app.get("/reviews", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const myreviews = await reviewsCollection
+      .find({ reviewer_email: email })
+      .toArray();
+    res.send(myreviews);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // POST Endpoints
 
 // Add review
@@ -84,6 +98,19 @@ app.post("/reviews", async (req, res) => {
     const review = req.body;
     console.log(review);
     const result = await reviewsCollection.insertOne(review);
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Add Service
+
+app.post("/services", async (req, res) => {
+  try {
+    const service = req.body;
+    console.log(service);
+    const result = await serviceCollection.insertOne(service);
     res.send(result);
   } catch (err) {
     console.log(err);
