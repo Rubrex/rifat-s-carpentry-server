@@ -79,7 +79,7 @@ app.get("/services/:id", async (req, res) => {
 
 app.get("/reviews/:serviceId", async (req, res) => {
   try {
-    const serviceId = req.params.serviceId;
+    const serviceId = +req.params.serviceId;
     const reviews = await reviewsCollection
       .find({ service_id: serviceId })
       .toArray();
