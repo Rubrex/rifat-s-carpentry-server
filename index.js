@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const colors = require("colors");
 const { MongoClient, ObjectId } = require("mongodb");
+var jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
@@ -11,6 +12,25 @@ const port = process.env.PORT || 5000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send("unauthorized access");
+  }
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, function (err, decoded) {
+    // err
+    // decoded undefined
+    if (err) {
+      // if wrong token or expired
+      return res.status(401).send("unauthorized access");
+    }
+    // saving devoded value in req object to access it in app.get methods
+    req.decoded = decoded;
+    next();
+  });
+};
 
 // MongoDB Stuff
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.f3qt6qk.mongodb.net/?retryWrites=true&w=majority`;
@@ -31,6 +51,17 @@ connectDB();
 // Select Database & collections
 const serviceCollection = client.db("rifatCarpentry").collection("services");
 const reviewsCollection = client.db("rifatCarpentry").collection("reviews");
+const blogsCollection = client.db("rifatCarpentry").collection("blogs");
+
+// Create JET Token and send it while logged in
+app.post("/jwt", (req, res) => {
+  const user = req.body;
+  console.log(user);
+  const token = jwt.sign(user, process.env.SECRET_ACCESS_TOKEN, {
+    expiresIn: "1h",
+  });
+  res.send({ token: token });
+});
 
 // ENDPOINTS
 //
@@ -91,13 +122,31 @@ app.get("/reviews/:serviceId", async (req, res) => {
 
 // Get My Reviews by query email + JWT
 
-app.get("/reviews", async (req, res) => {
+app.get("/reviews", verifyToken, async (req, res) => {
   try {
+    // Verify token email + req email
+    const decoded = req.decoded;
+
     const email = req.query.email;
+
+    if (decoded.email !== email) {
+      return res.status(403).send("Access forbidden");
+    }
+
     const myreviews = await reviewsCollection
       .find({ reviewer_email: email })
       .toArray();
     res.send(myreviews);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Get Blogs
+app.get("/blogs", async (req, res) => {
+  try {
+    const blogs = await blogsCollection.find({}).toArray();
+    res.send(blogs);
   } catch (err) {
     console.log(err);
   }
