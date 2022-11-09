@@ -113,8 +113,10 @@ app.get("/reviews/:serviceId", async (req, res) => {
     const serviceId = +req.params.serviceId;
     const reviews = await reviewsCollection
       .find({ service_id: serviceId })
+      .sort({ reviewer_added: -1 })
       .toArray();
     res.send(reviews);
+    console.log(reviews);
   } catch (err) {
     console.log(err);
   }
@@ -135,6 +137,7 @@ app.get("/reviews", verifyToken, async (req, res) => {
 
     const myreviews = await reviewsCollection
       .find({ reviewer_email: email })
+      .sort({ reviewer_added: -1 })
       .toArray();
     res.send(myreviews);
   } catch (err) {
